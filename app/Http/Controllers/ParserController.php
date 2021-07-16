@@ -97,6 +97,8 @@ class ParserController extends Controller
         $size = sizeof($data);
         $europeNameCountries = CountryServices::getInstance()->getEuropeNameCountries();
 
+
+        $data = array_slice($data, 0, 20);
         $countGenre = 0;
         $countMovies = 0;
         $countCountries = 0;
@@ -265,7 +267,7 @@ class ParserController extends Controller
                     $castmovies = Castmovies::where('name', $castName)->first();
                     if (!$castmovies) {
                         $castmovies = new Castmovies();
-                        $castmovies->name = $item['writer'];
+                        $castmovies->name = $castName;
                         $castmovies->save();
                         $countCastmovies++;
                     }
