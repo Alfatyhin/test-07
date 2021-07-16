@@ -97,6 +97,10 @@ class ParserController extends Controller
 
 
         $data = array_slice($data, 0, 1000);
+        $castmoveData = [];
+        $genreData = [];
+        $languageData = [];
+        $countriesData = [];
         $countGenre = 0;
         $countMovies = 0;
         $countCountries = 0;
@@ -135,25 +139,33 @@ class ParserController extends Controller
                 /////////////////////////////////////////
                 /// countries
                 $countryName = trim($item['country']);
-                $country = Countries::where('name', $countryName)->first();
-                if (!$country) {
-                    $country = new Countries();
-                    $country->name = $countryName;
 
-                    if ($countryName == 'USA') {
-                        $country->is_usa = true;
-                    } elseif (isset($europeNameCountries[$countryName])) {
-                        $country->is_europe = true;
+                if (empty($countriesData[$countryName])) {
+
+                    $country = Countries::where('name', $countryName)->first();
+                    if (!$country) {
+                        $country = new Countries();
+                        $country->name = $countryName;
+
+                        if ($countryName == 'USA') {
+                            $country->is_usa = true;
+                        } elseif (isset($europeNameCountries[$countryName])) {
+                            $country->is_europe = true;
+                        }
+
+                        $country->save();
+                        $countCountries++;
                     }
+                    $moviesCountry = new MoviesCountries();
+                    $moviesCountry->move_id = $movies->id;
+                    $moviesCountry->country_id = $country->id;
+                    $countMoviesCountries++;
 
-                    $country->save();
-                    $countCountries++;
+                    $countriesData[$countryName] = $country;
+
+                } else {
+                    $country = $countriesData[$countryName];
                 }
-                $moviesCountry = new MoviesCountries();
-                $moviesCountry->move_id = $movies->id;
-                $moviesCountry->country_id = $country->id;
-                $countMoviesCountries++;
-
 
                 ///////////////////////////////
                 $movies->country = $country->id;
@@ -189,13 +201,22 @@ class ParserController extends Controller
                 } else {
                     $lang = $item['language'];
                 }
-                $language = Language::where('name', $lang)->first();
-                if (!$language) {
-                    $language = new Language();
-                    $language->name = $lang;
-                    $language->save();
-                    $countLanguages++;
+
+                if (empty($languageData[$lang])) {
+                    $language = Language::where('name', $lang)->first();
+                    if (!$language) {
+                        $language = new Language();
+                        $language->name = $lang;
+                        $language->save();
+                        $countLanguages++;
+
+                    }
+                    $languageData[$lang] = $language;
+
+                } else {
+                    $language = $languageData[$lang];
                 }
+
                 $movies->language = $language->id;
 
 
@@ -204,16 +225,23 @@ class ParserController extends Controller
                 $genreArray = explode(',', $item['genre']);
 
                 // получаем id жанров и попутно создаем записи в таблице жанров если их нет
-                foreach ($genreArray as $itemGenreName) {
+                foreach ($genreArray as $genreName) {
 
-                    $itemGenreName = trim($itemGenreName);
-                    $genre = Genres::where('name', $itemGenreName)->first();
+                    $genreName = trim($genreName);
 
-                    if (!$genre) {
-                        $genre = new Genres();
-                        $genre->name = $itemGenreName;
-                        $genre->save();
-                        $countGenre++;
+                    if (empty($genreData[$genreName])) {
+                        $genre = Genres::where('name', $genreName)->first();
+                        if (!$genre) {
+                            $genre = new Genres();
+                            $genre->name = $genreName;
+                            $genre->save();
+                            $countGenre++;
+                        }
+
+                        $genreData[$genreName] = $genre;
+
+                    } else {
+                        $genre = $genreData[$genreName];
                     }
                     $moveGenreArray[] = $genre->id;
 
@@ -234,12 +262,19 @@ class ParserController extends Controller
                 ///  так как в casts может быть несколько человек с таким именем
                 /// и не понятно которого надо вписывать
                 /// поэтому сделана для этого другая таблица castmovies
-                $castmovies = Castmovies::where('name', $item['director'])->first();
-                if (!$castmovies) {
-                    $castmovies = new Castmovies();
-                    $castmovies->name = $item['director'];
-                    $castmovies->save();
-                    $countCastmovies++;
+
+                if (empty($castmoveData[$item['director']])) {
+                    $castmovies = Castmovies::where('name', $item['director'])->first();
+                    if (!$castmovies) {
+                        $castmovies = new Castmovies();
+                        $castmovies->name = $item['director'];
+                        $castmovies->save();
+                        $countCastmovies++;
+                    }
+                    $castmoveData[$item['director']] = $castmovies;
+
+                } else {
+                    $castmovies = $castmoveData[$item['director']];
                 }
                 $movies->director = $castmovies->id;
 
@@ -248,12 +283,19 @@ class ParserController extends Controller
                 $moviesCast->castmovies_id = $castmovies->id;
                 $countMoviesCasts++;
 
-                $castmovies = Castmovies::where('name', $item['writer'])->first();
-                if (!$castmovies) {
-                    $castmovies = new Castmovies();
-                    $castmovies->name = $item['writer'];
-                    $castmovies->save();
-                    $countCastmovies++;
+
+                if (empty($castmoveData[$item['writer']])) {
+                    $castmovies = Castmovies::where('name', $item['writer'])->first();
+                    if (!$castmovies) {
+                        $castmovies = new Castmovies();
+                        $castmovies->name = $item['writer'];
+                        $castmovies->save();
+                        $countCastmovies++;
+                    }
+                    $castmoveData[$item['writer']] = $castmovies;
+
+                } else {
+                    $castmovies = $castmoveData[$item['writer']];
                 }
                 $movies->writer = $castmovies->id;
 
@@ -266,12 +308,20 @@ class ParserController extends Controller
                 foreach ($castmoviesArray as $castName) {
 
                     $castName = trim($castName);
-                    $castmovies = Castmovies::where('name', $castName)->first();
-                    if (!$castmovies) {
-                        $castmovies = new Castmovies();
-                        $castmovies->name = $castName;
-                        $castmovies->save();
-                        $countCastmovies++;
+
+                    if (empty($castmoveData[$castName])) {
+
+                        $castmovies = Castmovies::where('name', $castName)->first();
+                        if (!$castmovies) {
+                            $castmovies = new Castmovies();
+                            $castmovies->name = $castName;
+                            $castmovies->save();
+                            $countCastmovies++;
+                        }
+                        $castmoveData[$castName] = $castmovies;
+
+                    } else {
+                        $castmovies = $castmoveData[$castName];
                     }
                     $actorsArray[] = $castmovies->id;
 
@@ -283,14 +333,19 @@ class ParserController extends Controller
                 $movies->actors = json_encode($actorsArray);
                 $movies->save();
                 unset($actorsArray);
+
             }
 
 
 
         }
 
-        $timeDiff = $timeStart->diff(Carbon::now())->format('%i minutes, %s seconds');
+        $timeDiff = $timeStart->diff(Carbon::now())->format('%H hours, %i minutes, %s seconds');
 
+        $countAll = $countGenre + $countMovies + $countOldMovies
+            + $countNewMovies + $countCountries + $countLanguages
+            + $countMoviesGenres + $countCastmovies + $countMoviesCasts
+            + $countMoviesCountries;
         echo "<pre>";
         $parseStats = new ParseStat();
         $parseStats->file_stats = "$pachName - $size (string)";
@@ -303,7 +358,8 @@ class ParserController extends Controller
             . "movies_genre - $countMoviesGenres (string), \n"
             . "castmovies - $countCastmovies (string), \n"
             . "movies_casts - $countMoviesCasts (string), \n"
-            . "movies_countries - $countMoviesCountries (string), \n";
+            . "movies_countries - $countMoviesCountries (string), \n"
+            . "all table - $countAll (string), \n";
         $parseStats->time_parse = "time work - $timeDiff";
         $parseStats->save();
 
