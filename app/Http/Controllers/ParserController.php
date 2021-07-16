@@ -37,8 +37,6 @@ class ParserController extends Controller
         $europeNameCountries = CountryServices::getInstance()->getEuropeNameCountries();
 
         $countDb = 0;
-
-        $data = array_slice($data, 0, 300);
         foreach ($data as $k => $item) {
 
             $cast = Casts::where('imdb_name_id', $item['imdb_name_id'])->first();
@@ -98,7 +96,7 @@ class ParserController extends Controller
         $europeNameCountries = CountryServices::getInstance()->getEuropeNameCountries();
 
 
-        $data = array_slice($data, 0, 20);
+        $data = array_slice($data, 0, 1000);
         $countGenre = 0;
         $countMovies = 0;
         $countCountries = 0;
@@ -243,6 +241,8 @@ class ParserController extends Controller
                     $castmovies->save();
                     $countCastmovies++;
                 }
+                $movies->director = $castmovies->id;
+
                 $moviesCast = new MoviesCasts();
                 $moviesCast->move_id = $movies->id;
                 $moviesCast->castmovies_id = $castmovies->id;
@@ -255,6 +255,8 @@ class ParserController extends Controller
                     $castmovies->save();
                     $countCastmovies++;
                 }
+                $movies->writer = $castmovies->id;
+
                 $moviesCast = new MoviesCasts();
                 $moviesCast->move_id = $movies->id;
                 $moviesCast->castmovies_id = $castmovies->id;
@@ -279,6 +281,7 @@ class ParserController extends Controller
                     $countMoviesCasts++;
                 }
                 $movies->actors = json_encode($actorsArray);
+                $movies->save();
                 unset($actorsArray);
             }
 
