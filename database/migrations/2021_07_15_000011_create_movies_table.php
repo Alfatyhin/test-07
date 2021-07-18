@@ -21,9 +21,9 @@ class CreateMoviesTable extends Migration
             $table->json('genre')->nullable();
             $table->smallInteger('duration');
             $table->bigInteger('country')->nullable();
-            $table->bigInteger('language')->nullable();
-            $table->bigInteger('director')->nullable();
-            $table->bigInteger('writer')->nullable();
+            $table->json('language')->nullable();
+            $table->json('director')->nullable();
+            $table->json('writer')->nullable();
             $table->json('actors')->nullable();
             $table->text('description');
             $table->float('avg_vote', 3, 1);
