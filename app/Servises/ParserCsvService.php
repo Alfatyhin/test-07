@@ -38,9 +38,13 @@ class ParserCsvService
         return $itemData;
     }
 
-    public static function parseCsvString(string $str) : array
+    public static function parseCsvStringToArray(string $str) : array
     {
-        $data = str_getcsv($str);
+        if (empty($str)) {
+            $str = 'None';
+        }
+        $str = str_replace(', ', ',', $str);
+        $data = explode(',', $str);
 
         return $data;
     }
@@ -55,7 +59,7 @@ class ParserCsvService
                 $str = 'None';
             }
 
-            $strArray = self::parseCsvString($str);
+            $strArray = self::parseCsvStringToArray($str);
             foreach ($strArray as $valName) {
                 $valName = trim($valName);
                 $subData[] = $valName;

@@ -5,40 +5,52 @@ namespace App\Servises;
 
 
 use Illuminate\Support\Facades\Storage;
+use SplFileObject;
 
-class CountryServices
+class CountryServices extends ParserCsvService
 {
-    protected static $instance;
 
-    public function __construct()
+    public static function getEuropeNameCountries() : array
     {
-    }
-    private function __clone()
-    {
-    }
-    private function __wakeup()
-    {
-    }
 
-    public static function getInstance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self;
+        $filePath = '../storage/app/dataCsv/Countries-Europe.csv';
+        $file = new SplFileObject($filePath, 'r');
+
+        $csvService = new ParserCsvService();
+        while (!$file->eof()) {
+            $data = $file->fgetcsv();
+
+            if (!empty($data[0])) {
+                $csvService->addCollectionLies($data);
+                continue;
+            }
         }
-        return self::$instance;
+        $data = $csvService->toArray();
+
+        $name = 'name';
+        $arrayData = array_column($data, $name);
+
+        return $arrayData;
     }
 
-    public function getEuropeNameCountries()
+    public static function is_usa(string $str) : bool
     {
-        $dataFile = Storage::disk('local')->readStream('dataCsv/Countries-Europe.csv');
-        $data = ParserCsv::parse($dataFile);
-
-        foreach ($data as $item) {
-            $name = $item['name'];
-            $countryNames[$name] = $name;
+        if (preg_match('/USA/', $str)) {
+            return true;
+        } else {
+            return false;
         }
+    }
 
-        return $countryNames;
+    public static function is_europe(string $str) : bool
+    {
+        $europeCountries = array_flip(self::getEuropeNameCountries());
+
+        if (isset($europeCountries[$str])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }
