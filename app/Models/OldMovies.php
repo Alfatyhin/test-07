@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class OldMovies extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['move_id', 'year'];
 }

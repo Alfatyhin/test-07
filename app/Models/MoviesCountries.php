@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class MoviesCountries extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['move_id', 'country_id'];
 }
