@@ -15,12 +15,12 @@ class CreateMoviesTable extends Migration
     {
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
-            $table->string('imdb_title_id')->unique();
+            $table->string('imdb_title_id');
             $table->string('title');
             $table->smallInteger('year');
             $table->json('genre')->nullable();
             $table->smallInteger('duration');
-            $table->bigInteger('country')->nullable();
+            $table->json('country')->nullable();
             $table->json('language')->nullable();
             $table->json('director')->nullable();
             $table->json('writer')->nullable();
