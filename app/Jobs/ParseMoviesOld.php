@@ -26,7 +26,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use SplFileObject;
 
-class ParseMovies implements ShouldQueue
+class ParseMoviesOld implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -72,7 +72,7 @@ class ParseMovies implements ShouldQueue
         }
 
         $data = $moviesService->toArray();
-        $moviesService->setColectionRelates($data);
+        $moviesService->saveColectionRelates($data);
 
 
     }

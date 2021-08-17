@@ -17,17 +17,14 @@ use App\Models\OldMovies;
 
 class MoviesService extends ParserCsvService
 {
-    private $moviesCollection = [];
     private $collectionGenresId = [];
     private $collectionLanguageId = [];
     private $collectionCountriesId = [];
     private $collectionCastsId = [];
 
 
-    public function setColectionRelates(array $data)
+    public function saveColectionRelates(array $data)
     {
-
-        var_dump($this->getHeaders());
 
         /////////////////////////////////////////////
         $name = 'language';
@@ -129,46 +126,41 @@ class MoviesService extends ParserCsvService
 
             ////////////////////////////////////////////////////
             if ($movies->year >= 1980) {
-                $newMovies = NewMovies::firstOrCreate([
+                NewMovies::firstOrCreate([
                     'move_id' => $movies->id,
                     'year'    => $movies->year
                 ]);
 
             } else {
-                $newMovies = OldMovies::firstOrCreate([
+                OldMovies::firstOrCreate([
                     'move_id' => $movies->id,
                     'year'    => $movies->year
                 ]);
             }
             //////////////////////////////////////////////
             foreach ($genreIds as $Id) {
-                $newModel = MoviesGenres::firstOrCreate([
+                MoviesGenres::firstOrCreate([
                     'move_id'  => $movies->id,
                     'genre_id' => $Id,
                 ]);
             }
             //////////////////////////////////////////////
             foreach ($countryIds as $Id) {
-                $newModel = MoviesCountries::firstOrCreate([
+                MoviesCountries::firstOrCreate([
                     'move_id'  => $movies->id,
                     'country_id' => $Id,
                 ]);
             }
             //////////////////////////////////////////////
             foreach ($castIds as $Id) {
-                $newModel = MoviesCasts::firstOrCreate([
+                MoviesCasts::firstOrCreate([
                     'move_id'  => $movies->id,
                     'castmovies_id' => $Id,
                 ]);
             }
 
-
-
-            $moviesData[] = $movies;
-            var_dump($itemData);
         }
 
-        $this->moviesCollection = $moviesData;
 
         return $this;
     }

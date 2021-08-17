@@ -30,6 +30,9 @@ Route::get('/parse-movies', [ParserController::class, 'parseMovies'])
 Route::get('/test-parse-movies', [ParserController::class, 'testParseMovies'])
     ->name('test_parse_movies');
 
+Route::get('/test-parse-names', [ParserController::class, 'testParseNames'])
+    ->name('test_parse_names');
+
 //
 //Route::get('/parse-movies', function(){
 //    dispatch(new App\Jobs\ParseMovies());
